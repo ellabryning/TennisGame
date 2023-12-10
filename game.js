@@ -6,7 +6,12 @@ var ballSpeedX = 15;
 var ballSpeedY = 5;
 
 var paddle1Y = 250;
+var paddle2Y = 250;
 const paddleHeight = 100;
+const paddleThickness = 10;
+
+var player1Score = 0;
+var player2Score = 0;
 
 window.onload = function() {
     canvas = document.getElementById('gameCanvas');
@@ -49,20 +54,43 @@ function calculateMousePosition (evt) {
 };  
 
 function ballReset() {
-    ballX = ballX + ballSpeedX;
+    ballSpeedX = -ballSpeedX;
     ballX = canvas.width/2;
     ballY = canvas.height/2;
 };
 
+function computerMovement() {
+    var paddle2YCenter = paddle2Y + (paddleHeight/2);
+    if(paddle2YCenter < ballY-35) {
+        paddle2Y += 6;
+    } else if(paddle2YCenter > ballY+35) {
+        paddle2Y -= 6;
+    }
+};
+
 function moveEverything () {
-    ballX = ballX + ballSpeedX;
-    ballY = ballY + ballSpeedY;
+    computerMovement();
+
+    ballX += ballSpeedX;
+    ballY += ballSpeedY;
 
     if(ballX < 0) {
-      ballSpeedX = -ballSpeedX;
+        if(ballY > paddle1Y &&
+            ballY < paddle1Y + paddleHeight) {
+                ballSpeedX = -ballSpeedX
+            } else {
+                ballReset();
+                player2Score++;
+            }
     }
     if(ballX > canvas.width) {
-        ballSpeedX = -ballSpeedX;
+        if(ballY > paddle2Y &&
+            ballY < paddle2Y + paddleHeight) {
+                ballSpeedX = -ballSpeedX;
+            } else {
+                ballReset();
+                player1Score++;
+            }
     }
     if(ballY > canvas.height) {
         ballSpeedY = -ballSpeedY;
@@ -74,7 +102,9 @@ function moveEverything () {
 
 function drawEverything () {
     createRect(0, 0, canvas.width, canvas.height, 'black'); //Canvas
-    createRect(0, paddle1Y, 10, paddleHeight, 'white'); //Left player paddle
-    //createRect(0, paddle2Y, 10, paddleHeight, 'white'); //Right computer paddle
+    createRect(0, paddle1Y, paddleThickness, paddleHeight, 'white'); //Left player paddle
+    createRect(canvas.width-paddleThickness, paddle2Y, paddleThickness, paddleHeight, 'white'); //Right computer paddle
     createCircle(ballX, ballY, 10, 'white'); // Ball
+    canvasContext.fillText(player1Score, 100, 100);
+    canvasContext.fillText(player2Score, canvas.width-100, 100);
 };
